@@ -26,7 +26,6 @@ export class ReportController {
     return this.reportsService.getProductsReport(query);
   }
 
-  // server/src/reports/report.controller.ts
   @Get('products/grouped-by-category-brand')
   async getProductsGroupedByCategoryBrand(): Promise<ProductsGroupedResponseDto> {
     return this.reportsService.getProductCountsByCategoryAndBrand();

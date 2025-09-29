@@ -1,4 +1,3 @@
-// server/src/reports/dto/products-by-filter-query.dto.ts
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString, IsBoolean } from 'class-validator';
 import { Transform } from 'class-transformer';

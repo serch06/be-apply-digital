@@ -1,9 +1,4 @@
-// src/auth/jwt-auth.guard.ts
-import {
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { IS_PUBLIC_KEY } from './public.decorator';
@@ -12,15 +7,6 @@ import { IS_PUBLIC_KEY } from './public.decorator';
 export class JwtAuthGuard extends AuthGuard('jwt') {
   constructor(private reflector: Reflector) {
     super();
-  }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  handleRequest(err, user, info, context) {
-    // console.log('Guard >>> err:', err, 'user:', user, 'info:', info);
-    if (err || !user) {
-      throw err || new UnauthorizedException();
-    }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return user;
   }
 
   canActivate(context: ExecutionContext) {
@@ -31,8 +17,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     if (isPublic) {
       return true;
     }
-    // const request = context.switchToHttp().getRequest();
-    // console.log('>>> AUTH HEADER', request.headers['authorization']);
     return super.canActivate(context);
   }
 }
