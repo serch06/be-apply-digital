@@ -3,7 +3,7 @@ import { ProductSyncService } from './product-sync.service';
 import { ContentfulService } from './contentful.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Product } from '../product.entity';
-import { Repository } from 'typeorm';
+import { InsertResult, Repository } from 'typeorm';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { ConfigService } from '@nestjs/config';
 import { IProduct } from '../dto/product.interface';
@@ -85,7 +85,9 @@ describe('ProductSyncService', () => {
     };
 
     jest.spyOn(contentful, 'fetchProducts').mockResolvedValue([fakeProduct]);
-    const upsertSpy = jest.spyOn(repo, 'upsert').mockResolvedValue({} as any);
+    const upsertSpy = jest
+      .spyOn(repo, 'upsert')
+      .mockResolvedValue({} as unknown as InsertResult);
 
     await service.handleCronFetch();
 

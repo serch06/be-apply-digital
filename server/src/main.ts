@@ -52,4 +52,7 @@ async function bootstrap() {
   console.log(`🚀 Server running on http://localhost:${port}/api/v1`);
 }
 
-bootstrap();
+bootstrap().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
