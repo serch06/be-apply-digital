@@ -52,15 +52,15 @@ be-apply-digital/
    ```
 
 3. **Launch services**
-   ```bash
-   docker compose up --build
-   ```
+  ```bash
+  docker compose up --build
+  ```
 
-   - API available at `http://localhost:3000`
-   - PostgreSQL exposed on `localhost:5432`
+   - API available at `http://localhost:${PORT}` (defaults to 3000)
+   - PostgreSQL exposed on `localhost:${DATABASE_PORT}` (defaults to 5432)
 
 4. **Open Swagger docs**
-   - http://localhost:3000/api/docs
+   - http://localhost:${PORT}/api/docs (defaults to `http://localhost:3000/api/docs`)
 
 Stop containers with:
 ```bash
@@ -144,8 +144,13 @@ Reference `.env.example`. Key entries:
 
 ## Additional Notes
 
-- Seed admin credentials: `admin@email.com` / `admin123` (created automatically if missing).
+- A seed admin user is created automatically on startup:
+  ```json
+  {
+    "email": "admin@email.com",
+    "password": "admin123"
+  }
+  ```
 - Reports endpoints are JWT-protected.
 - Product data mirrors Contentful; local deletions are soft Deletes.
 - Retry/backoff values for Contentful requests are configurable via env vars.
-
