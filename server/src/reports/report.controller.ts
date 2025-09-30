@@ -22,12 +22,13 @@ export class ReportController {
   async getProductReport(
     @Query() query: ReportQueryDto,
   ): Promise<ReportResponseDto> {
-    this.logger.debug(`Raw query`, query);
+    this.logger.log(`Products report called`);
     return this.reportsService.getProductsReport(query);
   }
 
   @Get('products/grouped-by-category-brand')
   async getProductsGroupedByCategoryBrand(): Promise<ProductsGroupedResponseDto> {
+    this.logger.log(`Products report category/brand called`);
     return this.reportsService.getProductCountsByCategoryAndBrand();
   }
 
@@ -35,6 +36,7 @@ export class ReportController {
   async getProductsByCategoryOrBrand(
     @Query() query: ProductsByFilterQueryDto,
   ): Promise<Product[]> {
+    this.logger.log(`Products report category/brand filters called`);
     return this.reportsService.getProductsByCategoryOrBrand(query);
   }
 }

@@ -49,6 +49,6 @@ export class ProductSyncService implements OnModuleInit {
       await this.productRepo.upsert(p, ['externalId']);
     }
 
-    this.logger.log(`✅ Synced ${products.length} products from Contentful`);
+    this.logger.log(`Synced ${products.length} products from Contentful`);
   }
 }
