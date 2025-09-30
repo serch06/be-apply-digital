@@ -1,146 +1,151 @@
 # Apply Digital Backend Challenge
 
-This project implements a **NestJS API** with **PostgreSQL** following the challenge requirements.  
-It includes public and private endpoints, integration with Contentful, Swagger documentation, and Docker setup.
+NestJS + PostgreSQL API built for the Apply Digital technical challenge. Includes product synchronization from Contentful, reporting endpoints, authentication, Docker setup, CI and a test suite with coverage.
+
+🔗 **Demo video:** [Loom walkthrough](https://www.loom.com/share/0bc2b20248ec4e368b25fa300e57d51b?sid=e0db931c-85b9-42b2-94b3-a5da835a84ac)
 
 ---
 
-## 📦 Project Structure
+## Project Overview
+
+- **Stack:** NestJS, TypeORM, PostgreSQL, Swagger, Jest, Docker, GitHub Actions.
+- **Features:**
+  - JWT-secured auth module with seeded admin user.
+  - Product module with pagination, filtering, soft delete, and Contentful sync (retry + timeout).
+  - Reports module delivering deletion percentages, price stats, grouped metrics and filtered listings.
+  - Scheduled task that retrieves the latest Product data from Contentful at regular one-hour intervals.
+- **Infrastructure:** Docker Compose (API + Postgres), CI workflow running lint/test/coverage.
+
+Repository layout:
 
 ```
 be-apply-digital/
-│── docker-compose.yml       # Orchestrates API + DB
-│── .env                     # Environment variables for docker-compose
-│── .gitignore
-│── README.md                # This file
-│
-├── server/                  # NestJS API source code
+├── docker-compose.yml
+├── .env.example
+├── README.md
+├── server/
 │   ├── Dockerfile
-│   ├── package.json         # API dependencies
-│   ├── tsconfig*.json
-│   ├── nest-cli.json
-│   ├── .env                 # Local env vars for development only
-│   ├── src/                 # Source code
-│   ├── test/                # Tests
-│   └── dist/                # Build output (gitignored)
+│   ├── package.json
+│   ├── jest.json
+│   ├── src/
+│   │   ├── auth/
+│   │   ├── products/
+│   │   ├── reports/
+│   │   └── main.ts
+│   └── test/
 ```
 
 ---
 
-## 🚀 Run with Docker (recommended)
+## Quick Start with Docker
 
-### 1. Clone the repo
+1. **Clone & enter the repo**
+   ```bash
+   git clone https://github.com/<your-username>/be-apply-digital.git
+   cd be-apply-digital
+   ```
+
+2. **Create environment file**
+   ```bash
+   cp .env.example .env
+   # edit values: Contentful tokens, DB creds, JWT secret, etc.
+   ```
+
+3. **Launch services**
+   ```bash
+   docker compose up --build
+   ```
+
+   - API available at `http://localhost:3000`
+   - PostgreSQL exposed on `localhost:5432`
+
+4. **Open Swagger docs**
+   - http://localhost:3000/api/docs
+
+Stop containers with:
 ```bash
-git clone https://github.com/<your-username>/be-apply-digital.git
-cd be-apply-digital
-```
-
-### 2. Create a `.env` file in the root
-Example:
-
-```env
-# Server
-PORT=3000
-
-# Database
-DATABASE_HOST=db
-DATABASE_PORT=5432
-DATABASE_USER=postgres
-DATABASE_PASSWORD=postgres
-DATABASE_NAME=products_db
-
-# Contentful
-CONTENTFUL_SPACE_ID=xxxx
-CONTENTFUL_ACCESS_TOKEN=xxxx
-CONTENTFUL_ENVIRONMENT=master
-CONTENTFUL_CONTENT_TYPE=product
-
-# JWT
-JWT_SECRET=supersecret
-```
-
-### 3. Build and run services
-```bash
-docker compose up --build
-```
-
-This will start:
-- API at `http://localhost:3000`
-- PostgreSQL on `localhost:5433`
-
-### 4. Access Swagger docs
-👉 [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
-
----
-
-## ⚡ Run locally (without Docker)
-
-### 1. Install dependencies
-At the root (tooling only):
-```bash
-npm install
-```
-
-Inside `/server`:
-```bash
-cd server
-npm install
-```
-
-### 2. Environment variables
-Create `server/.env` with the same configuration as root `.env`, but pointing to your local DB.
-
-### 3. Run in dev mode
-```bash
-npm run start:dev
+docker compose down
 ```
 
 ---
 
-## 🧪 Tests
+## Local Development (without Docker)
 
-Inside `/server`:
+1. **Install dependencies**
+   ```bash
+   npm install          # optional tooling at repo root
+   cd server
+   npm install          # Nest API dependencies
+   ```
+
+2. **Environment variables**
+   ```bash
+   cp ../.env.example .env
+   # adjust DATABASE_* for your local Postgres instance
+   ```
+
+3. **Run the API**
+   ```bash
+   npm run start:dev
+   ```
+
+4. **Contentful sync**
+   - Cron job runs hourly unless `DISABLE_CRON=true`.
+   - Manual trigger: `POST /api/v1/products/sync` (requires JWT).
+
+---
+
+## Testing & Coverage
+
+Inside `server/`:
+
 ```bash
-npm run test
-npm run test:cov
+npm run test       # unit tests
+npm run test:cov   # coverage (>=30% statements enforced)
 ```
+
+Report is generated under `server/coverage/`.
 
 ---
 
-## 🐶 Prettier + Lint-Staged
+## Environment Variables
 
-- The root includes configuration for **Prettier**, **Husky**, and **lint-staged**.  
-- Every commit will automatically format staged files.  
+Reference `.env.example`. Key entries:
 
----
-
-## 🔒 Modules
-
-- **Public module**  
-  - `GET /products`: Paginated results (5 per page), filterable by name, category, price range.  
-  - `DELETE /products/:id`: Mark product as deleted (it won’t reappear on restart).  
-
-- **Private module (JWT required)**  
-  - `GET /reports/deleted-percentage`: Percentage of deleted products.  
-  - `GET /reports/non-deleted-percentage`: Percentage of non-deleted products, filterable by price or date range.  
-  - `GET /reports/custom`: Custom report of choice.  
-
-JWT authentication must be sent in the `Authorization` header:  
-```
-Authorization: Bearer <token>
-```
+| Variable | Purpose |
+| --- | --- |
+| `PORT` | API port (default 3000) |
+| `DATABASE_*` | Postgres connection settings |
+| `CONTENTFUL_*` | Space, tokens, endpoints and retry/timeout tuning |
+| `DISABLE_CRON` | Disable hourly Contentful sync when `true` |
+| `JWT_SECRET`, `JWT_EXPIRES_IN` | Auth token configuration |
 
 ---
 
-## ⚠️ Notes
+## Useful npm Scripts (run in `server/`)
 
-- If using `docker compose` results in a permissions error (`Permission denied` on `/var/run/docker.sock`), make sure your user belongs to the `docker` group:
-  ```bash
-  sudo usermod -aG docker $USER
-  newgrp docker
-  ```
-  Or run with `sudo docker compose up`.
+| Script | Description |
+| --- | --- |
+| `npm run start:dev` | Start Nest in watch mode |
+| `npm run build` | Compile to `dist/` |
+| `npm run start:prod` | Run compiled app |
+| `npm run lint` | ESLint checks |
+| `npm run format` | Prettier formatting |
+| `npm run test` / `npm run test:cov` | Jest tests & coverage |
 
-- `dist/`, `node_modules/` and `.env` are ignored in git.  
+---
 
-http://localhost:3000/api/docs#/
+## CI/CD
+
+- GitHub Actions workflow (`.github/workflows/ci.yml`) runs lint, unit tests, and coverage on each push/PR.
+- Enable branch protection to require passing CI before merging.
+
+---
+
+## Additional Notes
+
+- Seed admin credentials: `admin@email.com` / `admin123` (created automatically if missing).
+- Reports endpoints are JWT-protected.
+- Product data mirrors Contentful; local deletions are soft Deletes.
+- Retry/backoff values for Contentful requests are configurable via env vars.
+
