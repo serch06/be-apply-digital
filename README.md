@@ -47,7 +47,7 @@ be-apply-digital/
 
 2. **Create environment file**
    ```bash
-   cp .env.example .env
+   cp server/.env.example server/.env
    # edit values: Contentful tokens, DB creds, JWT secret, etc.
    ```
 
