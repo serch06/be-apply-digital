@@ -151,6 +151,6 @@ Reference `.env.example`. Key entries:
     "password": "admin123"
   }
   ```
-- Reports endpoints are JWT-protected.
+- All the endpoints are JWT-protected (except the login).
 - Product data mirrors Contentful; local deletions are soft Deletes.
 - Retry/backoff values for Contentful requests are configurable via env vars.
