@@ -1,28 +1,29 @@
 version: '3.9'
 
 services:
-  api:
-    build: ./server
-    container_name: be_apply_digital
-    ports:
-      - '${PORT}:${PORT}'
-    env_file:
-      - .env
-    depends_on:
-      - db
-
-  db:
+  postgres_db:
     image: postgres:16
-    container_name: postgres_db
     restart: always
-    environment:
-      POSTGRES_USER: ${DATABASE_USER}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
-      POSTGRES_DB: ${DATABASE_NAME}
-    volumes:
-      - db_data:/var/lib/postgresql/data
+    container_name: postgres_db
+    env_file:
+      - ./server/.env
     ports:
       - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  be_apply_digital:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: be_apply_digital
+    depends_on:
+      - postgres_db
+    env_file:
+      - ./server/.env
+    ports:
+      - '3000:3000'
+    command: npm run start:prod
 
 volumes:
-  db_data:
+  pgdata:

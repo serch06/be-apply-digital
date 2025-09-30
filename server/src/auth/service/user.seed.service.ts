@@ -1,8 +1,9 @@
+// src/auth/user.seed.service.ts
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from './user.entity';
-import { hashPassword } from './utils/bcrypt';
+import { User } from '../user.entity';
+import { hashPassword } from '../utils/bcrypt';
 
 @Injectable()
 export class UserSeedService implements OnModuleInit {
@@ -14,20 +15,19 @@ export class UserSeedService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    const existing = await this.userRepo.findOne({
+    const exist = await this.userRepo.findOne({
       where: { email: 'admin@email.com' },
     });
 
-    if (!existing) {
-      const hashedPassword = await hashPassword('admin123');
-
+    if (!exist) {
       const user = this.userRepo.create({
         email: 'admin@email.com',
-        password: hashedPassword,
+        password: await hashPassword('admin123'),
       });
-
       await this.userRepo.save(user);
-      this.logger.log('✅ Seed user created: admin@email.com / admin123');
+      this.logger.log('Admin user created');
+    } else {
+      this.logger.log('Admin user already exists');
     }
   }
 }
