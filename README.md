@@ -69,7 +69,7 @@ docker compose down
 
 ---
 
-## Local Development (without Docker)
+## Local Development (without Docker / BUT with PostgresSQL running)
 
 1. **Install dependencies**
    ```bash
